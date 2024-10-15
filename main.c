@@ -1,6 +1,7 @@
 #include <SDL2/SDL.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <time.h>
 
 #define WIDTH 800
@@ -19,6 +20,21 @@ typedef struct{
 int numeroDeTentativas = 0;
 int jogadorSelecionado = 1;//rand() % 2;
 tentativa *tentativas;
+int nBombas = 25;
+bomba *bombas;
+
+int ganhou(int *c){
+    for (size_t i = 0; i < nBombas; i++)
+    {
+        bool colisaoHorizontal = (c[0] < bombas[i].x + bombas[i].size) && (c[0] + c[2] > bombas[i].x);
+        bool colisaoVertical = (c[1] < bombas[i].y + bombas[i].size) && (c[1] + c[2] > bombas[i].y);
+        
+        if (colisaoHorizontal && colisaoVertical)
+            return 1;
+        
+    }
+    return 0;
+}
 
 void desenhar(int x, int y, int size, SDL_Renderer *render){
     SDL_Rect *rect;
@@ -47,10 +63,18 @@ int main()
     SDL_Renderer* render = SDL_CreateRenderer(janela, -1, SDL_RENDERER_ACCELERATED);
 
     tentativas = malloc(100 * sizeof(tentativa));
+    bombas = malloc(3 * sizeof(tentativa));
     int lugarSelecionado[3] = {0,0,1}; //0 e X, 1 e Y e 2 a area
     int velocidade = 10;
     int x,y,s;
-    bomba *bombas;
+
+    for (size_t i = 0; i < nBombas; i++)
+    {
+        bombas[i].size = rand() % 10;
+        bombas[i].x = rand() % (WIDTH - bombas[i].size);
+        bombas[i].y = rand() % (HEIGTH - bombas[i].size);
+    }
+    
 
     int rodando = 1;
     while (rodando)
@@ -77,10 +101,12 @@ int main()
                         lugarSelecionado[0] += velocidade;
                         break;
                     case SDLK_UP:
-                        lugarSelecionado[2] += velocidade;
+                        if (lugarSelecionado[2] < 20)
+                            lugarSelecionado[2] += 1;
                         break;
                     case SDLK_DOWN:
-                        lugarSelecionado[2] -= velocidade;
+                        if (lugarSelecionado[2] > 1)
+                            lugarSelecionado[2] -= 1;
                         break;
                     case SDLK_SPACE:
                         aplicar(lugarSelecionado);
@@ -117,6 +143,23 @@ int main()
             desenhar(tentativas[i].x, tentativas[i].y, tentativas[i].size, render);
         }
         
+        if (ganhou(lugarSelecionado))
+        {
+            for (size_t i = 0; i < nBombas; i++)
+            {
+                SDL_SetRenderDrawColor(render,255,0,0,255);
+                desenhar(bombas[i].x,bombas[i].y,bombas[i].size, render);
+            }
+            
+            printf("bomba encntrada");
+            while (1)
+            {
+                /* code */
+            }
+            
+        }
+        
+
         SDL_RenderPresent(render);
         SDL_Delay(16);
     }
