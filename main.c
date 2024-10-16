@@ -6,6 +6,10 @@
 
 #define WIDTH 800
 #define HEIGTH 600
+#define N_BOMBAS 3 
+#define VELOCIDADE 10
+#define P_INCIAL 20
+#define MAX_SIZE_BLOCK 8
 
 typedef struct {
     int x,y,size;
@@ -18,16 +22,17 @@ typedef struct{
 } bomba;
 
 int numeroDeTentativas = 0;
-int jogadorSelecionado = 1;//rand() % 2;
+int jogadorSelecionado;
+int jogadorInicial;
+int pontosJogador[2] = {P_INCIAL, P_INCIAL};
 tentativa *tentativas;
-int nBombas = 25;
 bomba *bombas;
 
-int ganhou(int *c){
-    for (size_t i = 0; i < nBombas; i++)
+int ganhou(tentativa *c){
+    for (size_t i = 0; i < N_BOMBAS; i++)
     {
-        bool colisaoHorizontal = (c[0] < bombas[i].x + bombas[i].size) && (c[0] + c[2] > bombas[i].x);
-        bool colisaoVertical = (c[1] < bombas[i].y + bombas[i].size) && (c[1] + c[2] > bombas[i].y);
+        bool colisaoHorizontal = (c->x < bombas[i].x + bombas[i].size) && (c->x + c->size > bombas[i].x);
+        bool colisaoVertical = (c->y < bombas[i].y + bombas[i].size) && (c->y + c->size > bombas[i].y);
         
         if (colisaoHorizontal && colisaoVertical)
             return 1;
@@ -36,41 +41,55 @@ int ganhou(int *c){
     return 0;
 }
 
+int perdeu(){
+    if (jogadorInicial != jogadorSelecionado)
+    {
+        for (size_t i = 0; i < 2; i++)
+            if (pontosJogador[i] < 1)
+                return i+1;
+    }
+    return 0;
+}
+
 void desenhar(int x, int y, int size, SDL_Renderer *render){
-    SDL_Rect *rect;
-    rect->x = x;
-    rect->y = y;
-    rect->h = size;
-    rect->w = size;
-    SDL_RenderDrawRect(render,rect);
+    SDL_Rect rect;
+    rect.x = x;
+    rect.y = y;
+    rect.h = size;
+    rect.w = size;
+    SDL_RenderDrawRect(render,&rect);
 }
 
 void aplicar(int *lugarSelecionado) {
     ++numeroDeTentativas;
     tentativas[numeroDeTentativas-1].x = lugarSelecionado[0];
     tentativas[numeroDeTentativas-1].y = lugarSelecionado[1];
-    tentativas[numeroDeTentativas-1].size = lugarSelecionado[2]*10;
+    tentativas[numeroDeTentativas-1].size = lugarSelecionado[2]*20;
     tentativas[numeroDeTentativas-1].jogador = jogadorSelecionado;
 
-    if(jogadorSelecionado) jogadorSelecionado--;
+    pontosJogador[jogadorSelecionado-1] -= lugarSelecionado[2];
+
+    if(jogadorSelecionado == 2) jogadorSelecionado--;
     else jogadorSelecionado++;
 }
 
 int main()
 {
+    srand(time(NULL));
     SDL_Init;
     SDL_Window* janela = SDL_CreateWindow("Find Bomb", SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED, WIDTH, HEIGTH, SDL_WINDOW_SHOWN);
     SDL_Renderer* render = SDL_CreateRenderer(janela, -1, SDL_RENDERER_ACCELERATED);
 
+    jogadorSelecionado = rand() % 2 == 0 ? 2 : 1 ;
+    jogadorInicial = jogadorSelecionado;
     tentativas = malloc(100 * sizeof(tentativa));
-    bombas = malloc(3 * sizeof(tentativa));
+    bombas = malloc(N_BOMBAS * sizeof(tentativa));
     int lugarSelecionado[3] = {0,0,1}; //0 e X, 1 e Y e 2 a area
-    int velocidade = 10;
     int x,y,s;
 
-    for (size_t i = 0; i < nBombas; i++)
+    for (size_t i = 0; i < N_BOMBAS; i++)
     {
-        bombas[i].size = rand() % 10;
+        bombas[i].size = (rand() % 9) + 4;
         bombas[i].x = rand() % (WIDTH - bombas[i].size);
         bombas[i].y = rand() % (HEIGTH - bombas[i].size);
     }
@@ -89,19 +108,19 @@ int main()
                 switch (evento.key.keysym.sym)
                 {
                     case SDLK_w:
-                        lugarSelecionado[1] -= velocidade;
+                        lugarSelecionado[1] -= VELOCIDADE;
                         break;
                     case SDLK_s:
-                        lugarSelecionado[1] += velocidade;
+                        lugarSelecionado[1] += VELOCIDADE;
                         break;
                     case SDLK_a:
-                        lugarSelecionado[0] -= velocidade;
+                        lugarSelecionado[0] -= VELOCIDADE;
                         break;
                     case SDLK_d:
-                        lugarSelecionado[0] += velocidade;
+                        lugarSelecionado[0] += VELOCIDADE;
                         break;
                     case SDLK_UP:
-                        if (lugarSelecionado[2] < 20)
+                        if (lugarSelecionado[2] <= MAX_SIZE_BLOCK && pontosJogador[jogadorSelecionado-1] > lugarSelecionado[2])
                             lugarSelecionado[2] += 1;
                         break;
                     case SDLK_DOWN:
@@ -120,47 +139,69 @@ int main()
         SDL_RenderClear(render);
 
         SDL_SetRenderDrawColor(render,255,255,255,255);
-        // Extraindo as coordenadas iniciais e o tamanho
+
         x = lugarSelecionado[0];
         y = lugarSelecionado[1];
-        s = lugarSelecionado[2]; // Tamanho
+        s = lugarSelecionado[2];
 
-        // Calculando as coordenadas finais para o retângulo
-        int xFinal = x + s * 10;
-        int yFinal = y + s * 10;
+        int xFinal = x + s * 20;
+        int yFinal = y + s * 20;
 
         // Desenhando as linhas do retângulo
         SDL_RenderDrawLine(render, x, y, xFinal, y);            // Canto superior esquerdo para canto superior direito
         SDL_RenderDrawLine(render, x, yFinal, xFinal, yFinal);  // Canto inferior esquerdo para canto inferior direito
         SDL_RenderDrawLine(render, x, y, x, yFinal);            // Canto superior esquerdo para canto inferior esquerdo
-        SDL_RenderDrawLine(render, xFinal, y, xFinal, yFinal);  // Canto superior direito para canto inferior direito
+        SDL_RenderDrawLine(render, xFinal, y, xFinal, yFinal);  // Canto superior direito  para canto inferior direito
 
-
+        SDL_SetRenderDrawColor(render,0,255,0,255);
         for (int i = 0; i < numeroDeTentativas; i++)
-        { 
-            printf("n\n");
-            SDL_SetRenderDrawColor(render,0,255,0,255);
             desenhar(tentativas[i].x, tentativas[i].y, tentativas[i].size, render);
-        }
-        
-        if (ganhou(lugarSelecionado))
-        {
-            for (size_t i = 0; i < nBombas; i++)
-            {
-                SDL_SetRenderDrawColor(render,255,0,0,255);
-                desenhar(bombas[i].x,bombas[i].y,bombas[i].size, render);
-            }
-            
-            printf("bomba encntrada");
-            while (1)
-            {
-                /* code */
-            }
-            
-        }
-        
 
-        SDL_RenderPresent(render);
+        if (ganhou(&tentativas[numeroDeTentativas-1]) || perdeu())
+        {
+            SDL_SetRenderDrawColor(render,255,0,0,255);
+            for (size_t i = 0; i < N_BOMBAS; i++)
+                desenhar(bombas[i].x,bombas[i].y,bombas[i].size, render);
+            
+            SDL_RenderPresent(render);
+
+            if (perdeu() && !ganhou(&tentativas[numeroDeTentativas-1])){
+                printf("jogador %d perdeu por falta de pontos \n", perdeu());
+                printf("Prima tecla ESPACO para reiniciar o jogo\n");
+                printf("----------------------------------------\n");
+            }else{
+                printf("bomba encontrada, jogador %d ganhou.\n", tentativas[numeroDeTentativas-1].jogador);
+                printf("Prima tecla ESPACO para reiniciar o jogo\n");
+                printf("----------------------------------------\n");
+            }
+
+            int pause = 1;
+            while (pause)
+            {
+                while (SDL_PollEvent(&evento))
+                {
+                    if (evento.type == SDL_QUIT)
+                        return 0;
+                    else if(evento.type == SDL_KEYDOWN){
+                        switch (evento.key.keysym.sym){
+                            case SDLK_SPACE:
+                                numeroDeTentativas = 0;
+                                jogadorSelecionado = rand() % 2 == 0 ? 2 : 1 ;
+                                jogadorInicial = jogadorSelecionado;
+                                pontosJogador[0] = P_INCIAL;
+                                pontosJogador[1] = P_INCIAL;
+                                pause = 0;
+                                break;
+                            
+                            default:
+                                break;
+                        }
+                    }
+                }
+            }
+        }else
+            SDL_RenderPresent(render);
+
         SDL_Delay(16);
     }
 
