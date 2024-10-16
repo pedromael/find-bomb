@@ -36,7 +36,7 @@ Instalação do SDL2
 
     bash
 
-git clone https://github.com/seu-usuario/find-bomb.git
+git clone https://github.com/pedromael/find-bomb.git
 
 Navegue até a pasta do projeto:
 
