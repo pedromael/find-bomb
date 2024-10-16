@@ -6,49 +6,49 @@ Bem-vindo ao Find Bomb, um jogo simples desenvolvido em C utilizando a bibliotec
 O jogo consiste em dois jogadores que se alternam tentando descobrir bombas escondidas no campo. O jogador perde pontos a cada tentativa e ganha se encontrar a bomba, mas perde se ficar sem pontos.
 🛠 Funcionalidades
 
-    Dois jogadores alternam turnos.
-    Cada jogador pode se mover pelo campo e ajustar o tamanho da tentativa (área) que deseja revelar.
-    Verificação de colisões para identificar se a tentativa do jogador encontrou uma bomba.
-    Sistema de pontuação: cada jogador começa com um valor inicial de pontos e perde pontos a cada tentativa.
-    Interface gráfica simples utilizando SDL2 para renderizar os elementos do jogo.
+Dois jogadores alternam turnos.
+Cada jogador pode se mover pelo campo e ajustar o tamanho da tentativa (área) que deseja revelar.
+Verificação de colisões para identificar se a tentativa do jogador encontrou uma bomba.
+Sistema de pontuação: cada jogador começa com um valor inicial de pontos e perde pontos a cada tentativa.
+Interface gráfica simples utilizando SDL2 para renderizar os elementos do jogo.
 
 📋 Pré-requisitos
 
 Para compilar e executar o jogo, você precisará de:
 
-    SDL2 instalado em seu sistema.
-    Um compilador C (como gcc).
+SDL2 instalado em seu sistema.
+Um compilador C (como gcc).
 
 Instalação do SDL2
 
-    Linux:
+Linux:
 
-    bash
+bash
 
     sudo apt-get install libsdl2-dev
 
-    Windows:
-        Baixe e instale o SDL2 e configure seu compilador de acordo.
+Windows:
+    Baixe e instale o SDL2 e configure seu compilador de acordo.
 
 🚀 Como Compilar e Executar
 
-    Clone o repositório:
+Clone o repositório:
 
-    bash
+bash
 
-git clone https://github.com/pedromael/find-bomb.git
+    git clone https://github.com/pedromael/find-bomb.git find-bomb
 
 Navegue até a pasta do projeto:
 
 bash
 
-cd find-bomb
+    cd find-bomb
 
 Compile o jogo usando o compilador C:
 
 bash
 
-gcc main.c -o find_bomb -lSDL2
+    gcc main.c -o find_bomb -lSDL2
 
 Execute o jogo:
 
