@@ -42,7 +42,7 @@ int ganhou(tentativa *c){
 }
 
 int perdeu(){
-    if (jogadorInicial != jogadorSelecionado)
+    if (jogadorInicial == jogadorSelecionado)
     {
         for (size_t i = 0; i < 2; i++)
             if (pontosJogador[i] < 1)
@@ -108,16 +108,36 @@ int main()
                 switch (evento.key.keysym.sym)
                 {
                     case SDLK_w:
-                        lugarSelecionado[1] -= VELOCIDADE;
+                        if((lugarSelecionado[1] - VELOCIDADE) < 0){
+                            if((lugarSelecionado[1] - 2) >= 0){
+                                lugarSelecionado[1] -= 2;
+                            }
+                        }else{
+                            lugarSelecionado[1] -= VELOCIDADE;
+                        }
                         break;
                     case SDLK_s:
-                        lugarSelecionado[1] += VELOCIDADE;
+                        if((lugarSelecionado[1] + VELOCIDADE + lugarSelecionado[2] * 20) > HEIGTH){
+                            if((lugarSelecionado[1] + 2 + lugarSelecionado[2] * 20) <= HEIGTH)
+                                lugarSelecionado[1] += 2;
+                        }else
+                            lugarSelecionado[1] += VELOCIDADE;
                         break;
                     case SDLK_a:
-                        lugarSelecionado[0] -= VELOCIDADE;
+                        if((lugarSelecionado[0] - VELOCIDADE) < 0){
+                            if((lugarSelecionado[0] - 2) >= 0){
+                                lugarSelecionado[0] -= 2;
+                            }
+                        }else{
+                            lugarSelecionado[0] -= VELOCIDADE;
+                        }
                         break;
                     case SDLK_d:
-                        lugarSelecionado[0] += VELOCIDADE;
+                        if((lugarSelecionado[0] + VELOCIDADE + lugarSelecionado[2] * 20) > WIDTH){
+                            if((lugarSelecionado[0] + 2 + lugarSelecionado[2] * 20) <= WIDTH)
+                            lugarSelecionado[0] += 2;
+                        }else
+                            lugarSelecionado[0] += VELOCIDADE;
                         break;
                     case SDLK_UP:
                         if (lugarSelecionado[2] <= MAX_SIZE_BLOCK && pontosJogador[jogadorSelecionado-1] > lugarSelecionado[2])
