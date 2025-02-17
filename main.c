@@ -73,7 +73,7 @@ void aplicar(int *lugarSelecionado) {
     else jogadorSelecionado++;
 }
 
-int main()
+int main(int na, char **arg)
 {
     srand(time(NULL));
     SDL_Init;
